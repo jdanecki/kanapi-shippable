@@ -1,16 +1,22 @@
-all: bbs
+all: ncurses5
+	#bbs
 
-bbs: check_links
-	cd ../kanapi_system/`uname -m`   ; make gettext ACTION=install
-	cd ../kanapi_system/`uname -m`   ; make pkg-config ACTION=install
+bbs: base
 	cd ../kanapi_system/`uname -m`   ; make bbs	 ACTION=install V=1
 
 check_links:
 	./prepare_links
+
+base: check_links
+	cd ../kanapi_system/`uname -m`   ; make gettext ACTION=install
+	cd ../kanapi_system/`uname -m`   ; make pkg-config ACTION=install
 
 test:
 	echo "tests disabled"
 
 busybox:	
 	cd ../kanapi_system/`uname -m`   ; make busybox	 ACTION=install V=1
+
+ncurses5: base	
+	cd ../kanapi_system/`uname -m`   ; make ncurses5 ACTION=install V=1
 
