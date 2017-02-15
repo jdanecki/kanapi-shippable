@@ -17,6 +17,6 @@ test:
 busybox:	
 	cd ../kanapi_system/`uname -m`   ; make busybox	 ACTION=install V=1
 
-ncurses5: base	
+ncurses5: check_links
 	cd ../kanapi_system/`uname -m`   ; make ncurses5 ACTION=install V=1
 
