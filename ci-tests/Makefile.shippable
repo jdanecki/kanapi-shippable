@@ -1,4 +1,4 @@
-all: ncurses5
+all: perl
 	#bbs
 
 bbs: base
@@ -19,4 +19,8 @@ busybox:
 
 ncurses5: check_links
 	cd ../kanapi_system/`uname -m`   ; make ncurses5 ACTION=install V=1
+
+perl: check_links
+	cd ../kanapi_system/`uname -m`   ; make perl ACTION=install V=1
+
 
