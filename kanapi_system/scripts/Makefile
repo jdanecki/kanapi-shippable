@@ -30,6 +30,8 @@ all: required optional
 
 all-sbs: bbs-sbs
 
+test-sbs: ccache
+
 graph: required_graph optional_graph
 
 required_graph:
@@ -46,17 +48,17 @@ optional: apps_txt devel sound x-support sdl-support wm xapp tests apps_gui apps
 	apps_qt www 
 
 #Basic Build System 
-bbs: ccache busybox bash make perl m4 autoconf automake libtool bison sed gettext ncurses readline gawk openssl cmake \
+bbs: ccache busybox bash-completion make perl m4 autoconf automake libtool bison sed gettext ncurses readline gawk openssl cmake \
 	file flex attr acl libarchive e2fsprogs git \
 	coreutils diffutils Python ninja tar findutils patch slang util-linux less openssh
 
-bbs-sbs: ccache m4 perl autoconf automake libtool bison sed gettext ncurses readline gawk cmake \
+bbs-sbs: ccache bash-completion m4 perl autoconf automake libtool bison sed gettext ncurses readline gawk cmake \
 	file flex attr acl libarchive e2fsprogs git \
 	coreutils diffutils Python ninja tar findutils patch slang util-linux less openssh
 
 
 #KS - KaNaPi System textmode apps
-apps_txt: gzip mc vim gpm kmod procps-ng bc pciutils wireless_tools wpa_supplicant dhcp screen sdparm
+apps_txt: gzip mc vim gpm kmod procps-ng bc pciutils wireless_tools wpa_supplicant dhcp screen sdparm iotop
 
 devel: cgdb strace ltrace ctags chrpath patchelf vala syslinux mbr makefile2graph
 
@@ -121,7 +123,7 @@ icons:  xcursor-themes default-icon-theme hicolor-icon-theme tango-icon-theme
 sound: alsa-utils esound
 
 
-tests: xflame water xclipboard intel-gpu-tools
+tests: xflame water xclipboard intel-gpu-tools ltp-full
 
 deprecated: procps
 
@@ -1112,7 +1114,7 @@ xwd:
 xwininfo:
 	@$(RUN_TARGET)
 
-netpbm: libpng14
+netpbm: libpng14 jpegsrc
 	@$(RUN_TARGET)
 
 libpng14:
@@ -1192,6 +1194,9 @@ screen:
 sdparm:
 	@$(RUN_TARGET)
 
+linux-firmware:
+	@$(RUN_TARGET)
+
 SDL_gfx:
 	@$(RUN_TARGET)
 
@@ -1205,4 +1210,7 @@ expect: tcl
 	@$(RUN_TARGET)
 
 iotop:
+	@$(RUN_TARGET)
+
+bash-completion: bash
 	@$(RUN_TARGET)
