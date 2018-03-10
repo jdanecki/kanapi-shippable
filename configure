@@ -350,7 +350,12 @@ fi
 if [ "${CI}" = "true" -o "$1" = "ci" ]
 then
 	show_setup
-	configure_ci
+	if [ "${SHIPPABLE}" = "true" ]
+	then
+		configure_chroot
+	else
+		configure_ci
+	fi
 fi
 
 if [ "$1" = "setup" ]
