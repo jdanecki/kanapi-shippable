@@ -8,6 +8,7 @@ endif
 include $(BASE)../../cross_compilers/scripts/config.kanapi
 include $(BASE)../scripts/config.kanapi
 include $(BASE)../scripts/config-Makefile.kanapi
+include $(BASE)../scripts/colors.kanapi
 include $(BASE)../scripts/rules.kanapi
 KANAPI_VER=$(shell cat  $(BASE)../scripts/KANAPI_VER)
 CURRENT_ARCH=$(shell uname -m)
@@ -28,9 +29,43 @@ endif
 
 all: required optional
 
+required: $(COMPILERS) rootfs bbs
+
+minimal: $(COMPILERS) rootfs file busybox bash make openssl curl
+
+optional: apps_txt devel sound graphics x-support sdl-support wm xapp tests apps_gui apps_gtk apps_gtk3 \
+	sound_devel apps_qt www database nfs video sdl2-support graphics-apps ogl ocl network game_engine \
+	demo
+
 all-sbs: bbs-sbs
 
-test-sbs: ccache
+t_core: t_compression t_gui patchelf
+
+t_core_cli: t_compression patchelf t_system t_devel vim bc rplay sound 
+
+t_compression: gzip unrar bzip2 tar zip zlib
+
+t_gui: x-support wm xapp gtk+ dconf gtk3+ qt-everywhere-opensource-src 
+
+t_system: t_compression mc kmod procps-ng pciutils screen sdparm iotop ntfs-3g_ntfsprogs strace ltrace syslinux mbr nfs \
+	wireless_tools wpa_supplicant dhcp wget network
+
+t_devel: cgdb ctags chrpath vala makefile2graph scons lua database 
+
+t_editor: vim xedit gvim evince qt-creator vym 
+ 
+t_math: bc xcalc
+
+t_media: rplay sound graphics sdl-support gimp pavucontrol sound_devel qjackctl csoundqt musescore video \
+	sdl2-support  graphics-apps ogl ocl game_engine
+
+t_music: sound sound_devel csoundqt musescore
+
+t_tests: tests demo t_emulation
+
+t_emulation: qemu
+
+test-sbs: hello
 
 graph: required_graph optional_graph
 
@@ -42,35 +77,32 @@ optional_graph:
 	unset LANG; unset LC_ALL; make -Bnd optional ACTION=download V=1 | make2graph -r > optional.dot
 	#| dot -Tpdf -o optional.pdf
 
-required: $(COMPILERS) rootfs bbs
-
-optional: apps_txt devel sound x-support sdl-support wm xapp tests apps_gui apps_gtk apps_gtk3 \
-	apps_qt www 
-
 #Basic Build System 
 bbs: file ccache busybox bash-completion make perl m4 autoconf automake libtool bison sed gettext ncurses readline gawk openssl cmake \
 	flex attr acl libarchive e2fsprogs git \
-	coreutils diffutils Python ninja tar findutils patch slang util-linux less openssh
+	coreutils diffutils Python ninja tar findutils patch slang util-linux less openssh mtools
 
 bbs-sbs: file ccache bash-completion m4 perl autoconf automake libtool bison sed gettext ncurses readline gawk cmake \
 	flex attr acl libarchive e2fsprogs git \
-	coreutils diffutils Python ninja tar findutils patch slang util-linux less openssh
+	coreutils diffutils Python ninja tar findutils patch slang util-linux less openssh mtools
 
 
 #KS - KaNaPi System textmode apps
-apps_txt: gzip mc vim gpm kmod procps-ng bc pciutils wireless_tools wpa_supplicant dhcp screen sdparm iotop
+apps_txt: gzip mc vim kmod procps-ng bc pciutils wireless_tools wpa_supplicant dhcp screen sdparm iotop wget rplay \
+	ntfs-3g_ntfsprogs unrar
 
-devel: cgdb strace ltrace ctags chrpath patchelf vala syslinux mbr makefile2graph
+devel: cgdb strace ltrace ctags chrpath patchelf vala syslinux mbr makefile2graph scons lua
 
 #KS - KaNaPi System gui apps
 apps_gui: qemu
 
 apps_gtk: gtk+ dconf gimp gvim
 
-apps_gtk3: gtk3+ evince
+apps_gtk3: gtk3+ evince pavucontrol
 
+sdl-support: SDL_image SDL_gfx SDL_ttf SDL_mixer GUIlib
 
-sdl-support: SDL_image SDL_gfx SDL_ttf
+sdl2-support: SDL2_image SDL2_gfx SDL2_ttf SDL2_net SDL2_mixer
 
 x-support: kbproto util-macros xproto xextproto libxcb xtrans inputproto libX11 libXext \
 	fixesproto libXfixes libXdamage xf86driproto xcmiscproto \
@@ -82,22 +114,25 @@ x-support: kbproto util-macros xproto xextproto libxcb xtrans inputproto libX11 
 	cacert libusb usbutils udev llvm mesa xcb-util-keysyms xinit libICE libSM \
 	libXt libXmu libevdev mtdev xorg-server xf86-input-keyboard \
 	xf86-input-mouse xf86-input-evdev xf86-video-intel xf86-video-vesa xf86-video-fbdev \
-	xf86-video-modesetting fonts setxkbmap xinput libXft icons
+	xf86-video-modesetting fonts setxkbmap xinput libXft icons libXxf86vm libXScrnSaver ois
 
 fonts: fonts-bitmap fonts-type1 fonts-misc fonts-ttf
 #	for i in 100dpi 75dpi Speedo Type1 cyrillic misc; do ln -svf $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/$$i $(KANAPI_BASE)/fontconfig-$(fontconfig_ver)/share/fonts ; done
-	if [ ! -d $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF ] ; then mkdir $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF; fi
+	if [ ! -d $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF ] ; then mkdir -p $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF; fi
 	for i in $(KANAPI_BASE)/freefont-ttf-$(freefont_ttf_ver)/*.ttf $(KANAPI_BASE)/dejavu-fonts-ttf-$(dejavu_fonts_ttf_ver)/ttf/*.ttf ; do \
-		ln -svf $$i $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF ; done
+		if [ -f $$i ] ; then ln -svf $$i $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF ; fi; done
 	echo -n > $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF/fonts
 	for i in $(KANAPI_BASE)/freefont-ttf-$(freefont_ttf_ver)/fonts.scale $(KANAPI_BASE)/dejavu-fonts-ttf-$(dejavu_fonts_ttf_ver)/ttf/fonts.scale ; do \
-		cat $$i | grep ttf >> $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF/fonts ; done
-	cat $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF/fonts	| wc -l >  $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF/fonts.scale
-	cat $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF/fonts	>>  $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF/fonts.scale
-	rm $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF/fonts
-	cd $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF ; mkfontdir
+		if [ -f $$i ] ; then cat $$i | grep ttf >> $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF/fonts ; fi; done
+	if [ -f $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF/fonts ] ; then \
+		cat $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF/fonts	| wc -l >  $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF/fonts.scale ; \
+		cat $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF/fonts	>>  $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF/fonts.scale ; \
+		rm $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF/fonts ; \
+		cd $(KANAPI_BASE)/font-util-$(font_util_ver)/share/fonts/X11/TTF ; \
+		if [ -x "`which mkfontdir`" ]; then mkfontdir ; fi ; \
+	fi
 
-fonts-ttf: freefont-ttf dejavu-fonts-ttf
+fonts-ttf: freefont-ttf dejavu-fonts-ttf font-bh-ttf
 	
 fonts-bitmap: fonts-utopia fonts-bh fonts-bitstream
 	
@@ -120,12 +155,27 @@ xapp: xfd st xterm bitmap oclock showfont x11perf xbacklight xcalc xclock xconso
 
 icons:  xcursor-themes default-icon-theme hicolor-icon-theme tango-icon-theme 
 
-sound: alsa-utils esound
+sound: alsa-utils esound gstreamer jack2 pulseaudio alsa-plugins speex sndio fluidsynth libmodplug flac openal-soft portaudio
 
+sound_devel: csound
 
-tests: xflame water xclipboard intel-gpu-tools ltp-full
+database: db gdbm
+
+tests: xflame water xclipboard intel-gpu-tools ltp-full hello phoronix-test-suite
+
+graphics: tiff jpegsrc freeimage
+
+video: Blue mpv libmad
 
 deprecated: procps
+
+nfs: nfs-utils
+
+graphics-apps: qiv opencv exif
+
+demo: cairo-demos mesa-demos
+
+game_engine: ClanLib allegro physfs bullet3 ogre 
 
 #download version prepare install clean test:
 #	$(foreach pkg,$(PKGS), make $(pkg) ACTION=$@; )
@@ -136,12 +186,18 @@ help:
 #for tests only
 #
 
-packages: package1 package2
+packages: package3
 
 package1:
 	@$(RUN_TARGET)
 
+package4:
+	@$(RUN_TARGET)
+
 package2: package1
+	@$(RUN_TARGET)
+
+package3: package2 package4
 	@$(RUN_TARGET)
 
 #
@@ -231,7 +287,7 @@ libssh2: libgcrypt
 slang: ncurses5
 	@$(RUN_TARGET)
 
-mc: libssh2 glib
+mc: libssh2 glib gpm
 	@$(RUN_TARGET)
 
 vim:
@@ -258,8 +314,8 @@ libpng:
 SDL_image: libpng SDL
 	@$(RUN_TARGET)
 
-#SDL2:
-#	@$(RUN_TARGET)
+SDL2:
+	@$(RUN_TARGET)
 
 gpm:
 	@$(RUN_TARGET)
@@ -435,7 +491,7 @@ libXfont:
 XML-Parser:
 	@$(RUN_TARGET)
 
-intltool: XML-Parser
+intltool: expat XML-Parser 
 	@$(RUN_TARGET)
 
 libxml2: xz
@@ -497,7 +553,7 @@ llvm: ninja
 	@$(RUN_TARGET)
 
 
-mesa: libxshmfence udev expat llvm
+mesa: libxshmfence udev expat llvm wayland-protocols libva libunwind
 	@$(RUN_TARGET)
 
 xcb-util-keysyms:
@@ -811,7 +867,7 @@ XML-Simple: XML-SAX-Expat
 icon-naming-utils: XML-Simple
 	@$(RUN_TARGET)
 
-ImageMagick: pango
+ImageMagick: pango jpegsrc tiff
 	@$(RUN_TARGET)
 
 tango-icon-theme: icon-naming-utils ImageMagick
@@ -965,9 +1021,9 @@ ifeq ($(KANAPI_TARGET),arm)
 tcl tk graphviz swig groff xflame water qemu gimp apps_qt www:
 	true
 else
-www: webkitgtk midori
+www: webkitgtk midori php
 
-apps_qt: qt-everywhere-opensource-src qt-creator vym
+apps_qt: qt-everywhere-opensource-src qt-creator vym qjackctl csoundqt musescore
 
 gimp: babl gegl dbus-glib
 	@$(RUN_TARGET)
@@ -1009,7 +1065,7 @@ atk:
 gtk+: pango atk gdk-pixbuf adwaita-icon-theme
 	@$(RUN_TARGET)
 
-gdk-pixbuf:
+gdk-pixbuf: jpegsrc
 	@$(RUN_TARGET)
 
 babl:
@@ -1081,7 +1137,7 @@ librsvg: libcroco
 libcroco:
 	@$(RUN_TARGET)
 
-qt-everywhere-opensource-src:
+qt-everywhere-opensource-src: alsa-lib dbus
 	@$(RUN_TARGET)
 
 dbus:
@@ -1129,7 +1185,7 @@ nasm:
 feh: imlib2
 	@$(RUN_TARGET)
 
-imlib2:
+imlib2: tiff
 	@$(RUN_TARGET)
 
 evince: poppler itstool shared-mime-info
@@ -1213,4 +1269,320 @@ iotop:
 	@$(RUN_TARGET)
 
 bash-completion: bash
+	@$(RUN_TARGET)
+
+mtools:
+	@$(RUN_TARGET)
+
+hello:
+	@$(RUN_TARGET)
+
+db:
+	@$(RUN_TARGET)
+
+gdbm:
+	@$(RUN_TARGET)
+
+php: db gdbm
+	@$(RUN_TARGET)
+
+phoronix-test-suite: php
+	@$(RUN_TARGET)
+
+wget: gnutls
+	@$(RUN_TARGET)
+
+font-bh-ttf:
+	@$(RUN_TARGET)
+
+package-test:
+	@$(RUN_TARGET)
+
+rplay:
+	@$(RUN_TARGET)
+
+tiff:
+	@$(RUN_TARGET)
+
+SDL_mixer:
+	@$(RUN_TARGET)
+
+ntfs-3g_ntfsprogs:
+	@$(RUN_TARGET)
+
+MPlayer: yasm
+	@$(RUN_TARGET)
+
+Blue: MPlayer
+	@$(RUN_TARGET)
+
+qiv: imlib2 jpegsrc libexif
+	@$(RUN_TARGET)
+
+libexif:
+	@$(RUN_TARGET)
+
+exif: libexif popt
+	@$(RUN_TARGET)
+
+popt:
+	@$(RUN_TARGET)
+
+unrar:
+	@$(RUN_TARGET)
+
+nfs-utils: rpcbind libevent libnfsidmap
+	@$(RUN_TARGET)
+
+rpcbind: libtirpc
+	@$(RUN_TARGET)
+
+libtirpc:
+	@$(RUN_TARGET)
+
+libevent:
+	@$(RUN_TARGET)
+
+libnfsidmap:
+	@$(RUN_TARGET)
+
+firefox: autoconf213 yasm
+	@$(RUN_TARGET)
+
+autoconf213:
+	DIR_NAME=autoconf-2.13; if [ ! -d  $${DIR_NAME} ]; then mkdir -p $${DIR_NAME} ; ln -svf ../../packages/$${DIR_NAME}/autoconf.kanapi $${DIR_NAME}; fi
+	make -f ../Makefile -C autoconf-2.13 kanapi_$(ACTION) PKG=autoconf KANAPI_TOP=$(PWD) V=$(V)
+
+
+ffmpeg: x264 gnutls
+	@$(RUN_TARGET)
+
+x264:
+	@$(RUN_TARGET)
+
+libva: libdrm
+	@$(RUN_TARGET)
+
+libva-intel-driver: libva
+	@$(RUN_TARGET)
+
+mpv: libva-intel-driver ffmpeg
+	@$(RUN_TARGET)
+
+yasm:
+	@$(RUN_TARGET)
+
+rtl8188eu:
+	@$(RUN_TARGET)
+
+beignet: ocl-icd
+	@$(RUN_TARGET)
+
+ocl-icd: ruby
+	@$(RUN_TARGET)
+
+clinfo:
+	@$(RUN_TARGET)
+
+clpeak:
+	@$(RUN_TARGET)
+
+glu:
+	@$(RUN_TARGET)
+
+freeglut: glu
+	@$(RUN_TARGET)
+
+ogl: freeglut
+
+ocl: beignet clinfo clpeak
+
+opencv:
+	@$(RUN_TARGET)
+
+SDL2_image: tiff libwebp SDL2
+	@$(RUN_TARGET)
+
+iproute2:
+	@$(RUN_TARGET)
+
+network: iproute2 enet
+
+gstreamer: libunwind
+	@$(RUN_TARGET)
+
+jack2:
+	@$(RUN_TARGET)
+
+pulseaudio: libsndfile speexdsp intltool
+	@$(RUN_TARGET)
+
+libsndfile: libvorbis
+	@$(RUN_TARGET)
+
+speex:
+	@$(RUN_TARGET)
+
+speexdsp:
+	@$(RUN_TARGET)
+
+gcc_5:
+	@$(RUN_TARGET_VER)
+
+gcc_6:
+	@$(RUN_TARGET_VER)
+
+gcc_7:
+	@$(RUN_TARGET_VER)
+
+compilers: binutils gcc_5 gcc_6 gcc_7
+
+scons:
+	@$(RUN_TARGET)
+
+csound: fltk
+	@$(RUN_TARGET)
+
+csoundqt: csound
+	@$(RUN_TARGET)
+
+qjackctl:
+	@$(RUN_TARGET)
+
+pavucontrol: libsigcpp gtkmm libcanberra
+	@$(RUN_TARGET)
+
+libsigcpp:
+	@$(RUN_TARGET)
+
+gtkmm: libsigcpp atkmm pangomm
+	@$(RUN_TARGET)
+
+atkmm: glibmm
+	@$(RUN_TARGET)
+
+glibmm:
+	@$(RUN_TARGET)
+
+pangomm: cairomm
+	@$(RUN_TARGET)
+
+cairomm:
+	@$(RUN_TARGET)
+
+libcanberra: libvorbis
+	@$(RUN_TARGET)
+
+libvorbis: libogg
+	@$(RUN_TARGET)
+
+libogg:
+	@$(RUN_TARGET)
+
+fltk:
+	@$(RUN_TARGET)
+
+SDL2_ttf:
+	@$(RUN_TARGET)
+
+GUIlib:
+	@$(RUN_TARGET)
+
+SDL-widgets:
+	@$(RUN_TARGET)
+
+alsa-plugins:
+	@$(RUN_TARGET)
+
+SDL2_gfx:
+	@$(RUN_TARGET)
+
+SDL2_mixer:
+	@$(RUN_TARGET)
+
+xf86-video-s3:
+	@$(RUN_TARGET)
+
+xf86-video-tseng:
+	@$(RUN_TARGET)
+
+ClanLib:
+	@$(RUN_TARGET)
+
+allegro:
+	@$(RUN_TARGET)
+
+Hermes:
+	@$(RUN_TARGET)
+
+libmikmod:
+	@$(RUN_TARGET)
+
+libXxf86vm:
+	@$(RUN_TARGET)
+
+sndio:
+	@$(RUN_TARGET)
+
+libXScrnSaver:
+	@$(RUN_TARGET)
+
+fluidsynth:
+	@$(RUN_TARGET)
+
+wayland-protocols: wayland
+	@$(RUN_TARGET)
+
+wayland:
+	@$(RUN_TARGET)
+
+mesa-demos: glew
+	@$(RUN_TARGET)
+
+glew: mesa
+	@$(RUN_TARGET)
+
+lua:
+	@$(RUN_TARGET)
+
+libmad:
+	@$(RUN_TARGET)
+
+libmodplug:
+	@$(RUN_TARGET)
+
+SDL2_net:
+	@$(RUN_TARGET)
+
+physfs:
+	@$(RUN_TARGET)
+
+bullet3:
+	@$(RUN_TARGET)
+
+ogre:
+	@$(RUN_TARGET)
+
+freeimage:
+	@$(RUN_TARGET)
+
+ois:
+	@$(RUN_TARGET)
+
+enet:
+	@$(RUN_TARGET)
+
+flac:
+	@$(RUN_TARGET)
+
+openal-soft:
+	@$(RUN_TARGET)
+
+portaudio:
+	@$(RUN_TARGET)
+
+musescore: lame libsndfile portaudio
+	@$(RUN_TARGET)
+
+lame:
 	@$(RUN_TARGET)
