@@ -2,5 +2,6 @@ all:
 	chroot ../sbs-`uname -m` /_start_bbs_build
 
 test: 
-	chroot ../sbs-`uname -m` /_start_chroot
+	echo "tests disabled"
+#	chroot ../sbs-`uname -m` /_start_chroot
 
