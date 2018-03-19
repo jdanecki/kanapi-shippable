@@ -366,6 +366,7 @@ then
 	if [ "${SHIPPABLE}" = "true" -o "${SEMAPHORE}" = "true" ]
 	then
 #		sudo ./configure chroot
+	docker info
 		cd ci-tests
 		link_makefile
 #		for dir in proc dev dev/pts sys 
