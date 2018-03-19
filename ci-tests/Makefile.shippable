@@ -1,5 +1,21 @@
-all: perl
-	#bbs
+all: rm-test
+
+rm-test:
+	cd sbs ; ./build
+
+#bbs_sbs t_compression t_system
+
+bbs_sbs:
+	chroot ../sbs-`uname -m` /_start_bbs_build
+
+t_compression:
+	bash -c "export PKG_COMMAND=t_compression; chroot ../sbs-`uname -m` /_start_install"
+
+t_system:
+	bash -c "export PKG_COMMAND=t_system; chroot ../sbs-`uname -m` /_start_install"
+
+core_cli:
+	bash -c "export PKG_COMMAND=cli; chroot ../sbs-`uname -m` /_start_install"
 
 bbs: base
 	cd ../kanapi_system/`uname -m`   ; make bbs	 ACTION=install V=1
