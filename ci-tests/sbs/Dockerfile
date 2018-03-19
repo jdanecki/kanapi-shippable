@@ -5,12 +5,10 @@ COPY group /etc
 COPY nsswitch.conf /etc
 COPY passwd /etc
 COPY services /etc
-RUN cd / ; while true; do mkdir test1234567890 ; if [ "$?" != "0" ] ; then break ; fi ; cd test1234567890; pwd; done  ; cd / ; rm -rf test1234567890 ; true
-RUN cd / ;  rm -rf test1234567890 ; true
-RUN cd / ; mv test1234567890 t1 ; true
-RUN cd / ;  rm -rf t1; true
+RUN cd / ; while true; do mkdir test1234567890 ; if [ "$?" != "0" ] ; then break ; fi ; cd test1234567890; pwd; done  ; cd / ; rm -rf test1234567890 ; rm -rf test1234567890 ; true
 RUN cd / ; ls -l 
-RUN cd / ; ls -l  t1
+RUN cd / ;  rm -rf test1234567890 ; true
+RUN cd / ; ls -l 
 RUN uname -a
 CMD ["/bin/bash"]
 
