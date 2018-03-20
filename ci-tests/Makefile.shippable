@@ -1,4 +1,7 @@
-all: rm-test
+all: cli-docker
+
+cli-docker:
+	cd cli ; ./build
 
 rm-test:
 	cd sbs ; ./build

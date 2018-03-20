@@ -369,6 +369,7 @@ then
 	docker info
 		cd ci-tests
 		link_makefile
+		git clone https://github.com/jdanecki/kanapi.git cli/kanapi
 #		for dir in proc dev dev/pts sys 
 #		do
 #			sudo mount -o bind /$dir ../sbs-`uname -m`/$dir
