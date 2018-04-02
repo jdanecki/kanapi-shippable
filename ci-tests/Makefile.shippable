@@ -1,4 +1,7 @@
-all: cli-docker
+all:
+    ccache -s
+    df -h
+    set
 
 cli-docker:
 	cd cli ; ./build
