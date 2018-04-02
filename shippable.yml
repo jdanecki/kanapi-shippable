@@ -3,4 +3,6 @@ compiler:
   - gcc
 build:
     cache: true
-
+    cache_dir_list:
+    - /root/src-ci
+    - /root/.ccache
