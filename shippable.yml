@@ -4,5 +4,5 @@ compiler:
 build:
     cache: true
     cache_dir_list:
-    - /root/src-ci
+    - /root/ci_src
     - /root/.ccache

@@ -382,6 +382,8 @@ then
 			echo "Travis/Shippable use docker"
 			cd ci-tests
 			link_makefile
+			mkdir -p ${HOME}/.ccache
+			mkdir -p ${HOME}/ci_src
 			exit 0
 		else
 			echo "CodeShip and CircleCI use native Ubuntu compilers"
