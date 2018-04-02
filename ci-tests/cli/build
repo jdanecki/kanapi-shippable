@@ -7,6 +7,13 @@ if [ ! -d ${HOME}/ci_src ] ; then mkdir ${HOME}/ci_src ; fi
 docker run -t -v `pwd`/kanapi:/kanapi_build/kanapi -v ${HOME}/ci_src:/kanapi_0.9/x86_64/home/ci_src \
 	-v ${HOME}/.ccache:/kanapi_0.9/x86_64/home/.ccache -e HOME=/kanapi_0.9/x86_64/home  -e CI="true" \
 	kanapi/kanapi-bbs \
+	bash -c "ls -lR /kanapi_build"
+
+exit 0
+
+docker run -t -v `pwd`/kanapi:/kanapi_build/kanapi -v ${HOME}/ci_src:/kanapi_0.9/x86_64/home/ci_src \
+	-v ${HOME}/.ccache:/kanapi_0.9/x86_64/home/.ccache -e HOME=/kanapi_0.9/x86_64/home  -e CI="true" \
+	kanapi/kanapi-bbs \
 	bash -c "ccache -s; /kanapi_build/kanapi/kanapi_system/docker/configure; cd /kanapi_build/kanapi/kanapi_system/x86_64 && ./install gzip verbose"
 
 docker run -t -v `pwd`/kanapi:/kanapi_build/kanapi -v ${HOME}/src-ci:/kanapi_0.9/x86_64/home/src-ci -e CI="true" \
