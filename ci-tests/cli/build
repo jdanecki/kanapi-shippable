@@ -4,15 +4,20 @@ git clone ../../../kanapi-shippable kanapi
 #docker build -t kanapi-cli:ci .
 if [ ! -d ${HOME}/ci_src ] ; then mkdir ${HOME}/ci_src ; fi
 
-#docker run --help
+ls -l kanapi
 
 docker run -t -v ${DIR}/kanapi:/kanapi_build/kanapi -v ${HOME}/ci_src:/kanapi_0.9/x86_64/home/ci_src \
 	-v ${HOME}/.ccache:/kanapi_0.9/x86_64/home/.ccache -e HOME=/kanapi_0.9/x86_64/home  -e CI="true" \
 	kanapi/kanapi-bbs \
-	bash -c "ccache -s; /kanapi_build/kanapi/kanapi_system/docker/configure; cd /kanapi_build/kanapi/kanapi_system/x86_64 && ./install gzip verbose"
+	bash -c "ls -l /kanapi_build; ls -l ${HOME}; ls -l ${HOME}/.ccache"
 
-docker run -t -v ${DIR}/kanapi:/kanapi_build/kanapi -v ${HOME}/src-ci:/kanapi_0.9/x86_64/home/src-ci -e CI="true" \
-	-v ${HOME}/.ccache:/kanapi_0.9/x86_64/home/.ccache -e HOME=/kanapi_0.9/x86_64/home \
-	kanapi/kanapi-bbs \
-	bash -c "ccache -s"
+#docker run -t -v ${DIR}/kanapi:/kanapi_build/kanapi -v ${HOME}/ci_src:/kanapi_0.9/x86_64/home/ci_src \
+#	-v ${HOME}/.ccache:/kanapi_0.9/x86_64/home/.ccache -e HOME=/kanapi_0.9/x86_64/home  -e CI="true" \
+#	kanapi/kanapi-bbs \
+#	bash -c "ccache -s; /kanapi_build/kanapi/kanapi_system/docker/configure; cd /kanapi_build/kanapi/kanapi_system/x86_64 && ./install gzip verbose"
+
+#docker run -t -v ${DIR}/kanapi:/kanapi_build/kanapi -v ${HOME}/src-ci:/kanapi_0.9/x86_64/home/src-ci -e CI="true" \
+#	-v ${HOME}/.ccache:/kanapi_0.9/x86_64/home/.ccache -e HOME=/kanapi_0.9/x86_64/home \
+#	kanapi/kanapi-bbs \
+#	bash -c "ccache -s"
 
