@@ -28,6 +28,7 @@ LIB_DEPENDS="zlib libcurl openssl libssh2"
 
 export CFLAGS="${CFLAGS} ${GPG_ERROR_CFLAGS} ${LIBGCRYPT_CFLAGS}"
 export LDFLAGS="${LDFLAGS} ${GPG_ERROR_LDFLAGS} ${LIBGCRYPT_LDFLAGS}"
+export NO_INSTALL_HARDLINKS=1
 
 pkg_configure() {
 	local_copy
@@ -49,8 +50,8 @@ pkg_build() {
 
 pkg_install() {
 	cd build
-	${MAKE} -j ${MAKE_JOBS} install MAKEINFO=true
-	pkg_install_bin_all
+	${MAKE} -j ${MAKE_JOBS} install MAKEINFO=true && pkg_install_bin_all && \
+	if [ -d ${PREFIX}/share/man ]; then rm -rf ${PREFIX}/share/man ; fi
 }
 
 pkg_check() {

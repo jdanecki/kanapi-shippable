@@ -6,7 +6,7 @@ cli-docker:
 rm-test:
 	cd sbs ; ./build
 
-#bbs_sbs t_compression t_system
+all_chroot: bbs_sbs t_compression t_system
 
 bbs_sbs:
 	chroot ../sbs-`uname -m` /_start_bbs_build

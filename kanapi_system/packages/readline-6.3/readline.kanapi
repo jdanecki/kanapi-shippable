@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2012-2016 Jacek Danecki <jacek.m.danecki@gmail.com>
+# Copyright (c) 2012-2018 Jacek Danecki <jacek.m.danecki@gmail.com>
 #
 # This file is part of KaNaPi project
 #
@@ -34,5 +34,6 @@ pkg_install() {
 	pkg_install_make && pkg_install_libs
 	RET="$?"
 	if [ -d ${PREFIX}/bin ] ; then rmdir ${PREFIX}/bin ; fi
+	rm -rf ${PREFIX}/share/{man,info,doc}
 	exit ${RET}
 }

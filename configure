@@ -363,10 +363,10 @@ fi
 if [ "${CI}" = "true" -o "$1" = "ci" ]
 then
 	show_setup
-	if [ "${SHIPPABLE}" = "true" -o "${SEMAPHORE}" = "true" ]
+	if [ "${SEMAPHORE}" = "true" ]
 	then
-#		sudo ./configure chroot
-	docker info
+		echo "Semaphore uses SBS chroot"
+		sudo ./configure chroot
 		cd ci-tests
 		link_makefile
 		git clone https://github.com/jdanecki/kanapi.git cli/kanapi
@@ -377,7 +377,16 @@ then
 #		sudo chroot ../sbs-`uname -m` /bin/update_include
 		exit $?
 	else
-		configure_ci
+		if [ "${TRAVIS}" = "true" -o "${SHIPPABLE}" = "true" ]
+		then
+			echo "Travis/Shippable use docker"
+			cd ci-tests
+			link_makefile
+			exit 0
+		else
+			echo "CodeShip and CircleCI use native Ubuntu compilers"
+			configure_ci
+		fi
 	fi
 fi
 
