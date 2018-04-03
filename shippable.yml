@@ -2,6 +2,17 @@ language: c
 compiler:
   - gcc
 build:
+    pre_ci:
+        - if [ ! -d /root/123 ] ; then mkdir -p /root/123/456 ; fi
+        - docker run -t -v /root/123:/kanapi_build/kanapi kanapi/kanapi-bbs ls -lR /kanapi_build
+    pre_ci_boot:
+        image_name: kanapi/kanapi-bbs
+        image_tag: latest
+        pull: true
+        env: CI=true
+        options: "-e HOME=/kanapi_0.9/x86_64/home -v /root/123:/kanapi_build"
+    ci:
+        - ls -lR /kanapi_build
     cache: true
     cache_dir_list:
     - /root/ci_src
