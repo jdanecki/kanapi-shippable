@@ -4,7 +4,7 @@ compiler:
 build:
     pre_ci:
         - pwd
-        - cd /root/src/github.com/jdanecki/kanapi-shippable/ci-test/cli
+        - cd ci-tests/cli
         - git clone /root/src/github.com/jdanecki/kanapi-shippable kanapi
         - docker build -t kanapi-cli:ci .
     ci:
