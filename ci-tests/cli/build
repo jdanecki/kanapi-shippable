@@ -3,14 +3,15 @@
 git clone ../../../kanapi-shippable kanapi
 #docker build -t kanapi-cli:ci .
 if [ ! -d ${HOME}/ci_src ] ; then mkdir ${HOME}/ci_src ; fi
+if [ ! -d ${HOME}/123 ] ; then mkdir -p ${HOME}/123/456 ; fi
 
-docker run -t -v `pwd`/kanapi:/kanapi_build/kanapi \
+docker run -t -v ${HOME}/123:/kanapi_build/kanapi \
 	kanapi/kanapi-bbs \
-	bash -c "ls -lR /kanapi_build"
+	ls -lR /kanapi_build
 
-docker run -t -v `pwd`/kanapi:/kanapi_0.9/x86_64/home/kanapi \
+docker run -t -v ${HOME}/123:/kanapi_0.9/x86_64/home/kanapi \
 	kanapi/kanapi-bbs \
-	bash -c "ls -lR /kanapi_0.9/x86_64/home/kanapi"
+	ls -lR /kanapi_0.9/x86_64/home/kanapi
 
 exit 0
 
