@@ -10,7 +10,6 @@ docker ps -a
 docker images
 
 docker run -t -v ${HOME}/123:/kanapi_build/kanapi kanapi/kanapi-bbs ls -lR /kanapi_build
-
 docker run -t -v ${HOME}/123:/kanapi_0.9/x86_64/home/kanapi kanapi/kanapi-bbs ls -lR /kanapi_0.9/x86_64/home/kanapi
 
 exit 0

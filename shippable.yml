@@ -3,19 +3,10 @@ compiler:
   - gcc
 build:
     pre_ci:
-        - set
-        - if [ ! -d /tmp/123 ] ; then mkdir -p /tmp/123/456 ; fi
-        - ls -l /tmp/123
-        - docker run -t -v /tmp/123:/kanapi_build/kanapi kanapi/kanapi-bbs ls -lR /kanapi_build
-    pre_ci_boot:
-        image_name: kanapi/kanapi-bbs
-        image_tag: latest
-        pull: true
-        env: CI=true
-        options: "-e HOME=/kanapi_0.9/x86_64/home -v /tmp/123:/kanapi_build"
+        - pwd
+        - cd /root/src/github.com/jdanecki/kanapi-shippable/ci-test/cli
+        - git clone /root/src/github.com/jdanecki/kanapi-shippable kanapi
+        - docker build -t kanapi-cli:ci .
     ci:
-        - ls -lR /kanapi_build
-    cache: true
-    cache_dir_list:
-    - /root/ci_src
-    - /root/.ccache
+        - docker ps -a
+        - docker images
